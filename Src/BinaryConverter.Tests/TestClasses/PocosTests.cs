@@ -43,6 +43,21 @@ namespace BinaryConverter.Tests.TestClasses
         }
 
         [TestMethod]
+        public void Test_PocosSimpleNonGeneric()
+        {
+            var val = new PocoSimple()
+            {
+                Int = 1,
+                Str = "1",
+            };
+
+            var buf = BinaryConvert.SerializeObject(typeof(PocoSimple), val);
+            var cloned = BinaryConvert.DeserializeObject(typeof(PocoSimple),buf);
+
+            Assert.AreEqual(val, cloned);
+        }
+
+        [TestMethod]
         public void Test_PocoWithAllPrimitives()
         {
             var val = new PocoWithAllPrimitives()
