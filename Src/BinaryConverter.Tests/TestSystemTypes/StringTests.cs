@@ -25,5 +25,14 @@ namespace BinaryConverter.Tests.TestSystemTypes
             var cloned = BinaryConvert.DeserializeObject<string>(buf);
             Assert.AreEqual(val, cloned);
         }
+
+        [TestMethod]
+        public void Test_StringNonGeneric()
+        {
+            var val = "Hello World";
+            var buf = BinaryConvert.SerializeObject(typeof(string), val);
+            var cloned = BinaryConvert.DeserializeObject(typeof(string), buf);
+            Assert.AreEqual(val, cloned);
+        }
     }
 }

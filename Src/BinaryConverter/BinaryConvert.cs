@@ -21,13 +21,13 @@ namespace BinaryConverter
             return Serializer.SerializeObject(value, settings);
         }
 
-        public static byte[] SerializeObject<T>(Type type, T value, SerializerSettings settings = null)
+        public static byte[] SerializeObject(Type type, object value, SerializerSettings settings = null)
         {
             using (MemoryStream ms = new MemoryStream())
             {
                 using (BinaryTypesWriter bw = new BinaryTypesWriter(ms))
                 {
-                    Serializer.SerializeObject(typeof(T), value, bw, settings, null, null);
+                    Serializer.SerializeObject(type, value, bw, settings, null, null);
                     return ms.ToArray();
                 }
             }
