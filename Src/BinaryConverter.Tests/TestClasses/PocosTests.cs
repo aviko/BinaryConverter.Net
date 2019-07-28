@@ -145,10 +145,12 @@ namespace BinaryConverter.Tests.TestClasses
                 }
             };
 
-            var buf = BinaryConvert.SerializeObject(val);
-            var cloned = BinaryConvert.DeserializeObject<PocoComplex>(buf);
-
-            Assert.AreEqual(val, cloned);
+            //for (int i = 0; i < 100_000; i++)
+            {
+                var buf = BinaryConvert.SerializeObject(val);
+                var cloned = BinaryConvert.DeserializeObject<PocoComplex>(buf);
+                Assert.AreEqual(val, cloned);
+            }
         }
 
     }
