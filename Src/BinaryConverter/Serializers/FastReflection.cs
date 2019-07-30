@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -23,7 +21,7 @@ namespace BinaryConverter.Serializers
     public static class FastReflection
     {
         static ILEmitter _emit = new ILEmitter();
-        static ConcurrentDictionary<string, Delegate> _cache = new ConcurrentDictionary<string, Delegate>();
+        //static ConcurrentDictionary<string, Delegate> _cache = new ConcurrentDictionary<string, Delegate>();
 
         const string kCtorInvokerName = "CI<>";
         const string kMethodCallerName = "MC<>";
@@ -37,14 +35,7 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static CtorInvoker<T> DelegateForCtor<T>(this Type type, params Type[] paramTypes)
         {
-            var key = kCtorInvokerName + "." + type.Name;
-
-            for (int i = 0; i < paramTypes.Length; i++)
-                key += ("." + paramTypes[i].Name);
-
             Delegate result;
-            if (_cache.TryGetValue(key, out result))
-                return (CtorInvoker<T>)result;
 
             var dynMethod = new DynamicMethod(kCtorInvokerName,
                 typeof(T), new Type[] { typeof(object[]) });
@@ -53,7 +44,6 @@ namespace BinaryConverter.Serializers
             GenCtor<T>(type, paramTypes);
 
             result = dynMethod.CreateDelegate(typeof(CtorInvoker<T>));
-            _cache[key] = result;
             return (CtorInvoker<T>)result;
         }
 
@@ -73,14 +63,9 @@ namespace BinaryConverter.Serializers
             if (!property.CanRead)
                 throw new InvalidOperationException("Property is not readable " + property.Name);
 
-            var key = GetKey<TTarget, TReturn>(property, kPropertyGetterName);
-            Delegate result;
-            if (_cache.TryGetValue(key, out result))
-                return (MemberGetter<TTarget, TReturn>)result;
-
             return GenDelegateForMember<MemberGetter<TTarget, TReturn>, PropertyInfo>(
-                property, key, kPropertyGetterName, GenPropertyGetter<TTarget>,
-                typeof(TReturn), typeof(TTarget));
+                 property, kPropertyGetterName, GenPropertyGetter<TTarget>,
+                 typeof(TReturn), typeof(TTarget));
         }
 
         /// <summary>
@@ -99,13 +84,8 @@ namespace BinaryConverter.Serializers
             if (!property.CanWrite)
                 throw new InvalidOperationException("Property is not writable " + property.Name);
 
-            var key = GetKey<TTarget, TValue>(property, kPropertySetterName);
-            Delegate result;
-            if (_cache.TryGetValue(key, out result))
-                return (MemberSetter<TTarget, TValue>)result;
-
             return GenDelegateForMember<MemberSetter<TTarget, TValue>, PropertyInfo>(
-                property, key, kPropertySetterName, GenPropertySetter<TTarget>,
+                property, kPropertySetterName, GenPropertySetter<TTarget>,
                 typeof(void), typeof(TTarget).MakeByRefType(), typeof(TValue));
         }
 
@@ -122,13 +102,8 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static MemberGetter<TTarget, TReturn> DelegateForGet<TTarget, TReturn>(this FieldInfo field)
         {
-            var key = GetKey<TTarget, TReturn>(field, kFieldGetterName);
-            Delegate result;
-            if (_cache.TryGetValue(key, out result))
-                return (MemberGetter<TTarget, TReturn>)result;
-
             return GenDelegateForMember<MemberGetter<TTarget, TReturn>, FieldInfo>(
-                field, key, kFieldGetterName, GenFieldGetter<TTarget>,
+                field, kFieldGetterName, GenFieldGetter<TTarget>,
                 typeof(TReturn), typeof(TTarget));
         }
 
@@ -145,13 +120,8 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static MemberSetter<TTarget, TValue> DelegateForSet<TTarget, TValue>(this FieldInfo field)
         {
-            var key = GetKey<TTarget, TValue>(field, kFieldSetterName);
-            Delegate result;
-            if (_cache.TryGetValue(key, out result))
-                return (MemberSetter<TTarget, TValue>)result;
-
             return GenDelegateForMember<MemberSetter<TTarget, TValue>, FieldInfo>(
-                field, key, kFieldSetterName, GenFieldSetter<TTarget>,
+                field, kFieldSetterName, GenFieldSetter<TTarget>,
                 typeof(void), typeof(TTarget).MakeByRefType(), typeof(TValue));
         }
 
@@ -168,13 +138,8 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static MethodCaller<TTarget, TReturn> DelegateForCall<TTarget, TReturn>(this MethodInfo method)
         {
-            var key = GetKey<TTarget, TReturn>(method, kMethodCallerName);
-            Delegate result;
-            if (_cache.TryGetValue(key, out result))
-                return (MethodCaller<TTarget, TReturn>)result;
-
             return GenDelegateForMember<MethodCaller<TTarget, TReturn>, MethodInfo>(
-                method, key, kMethodCallerName, GenMethodInvocation<TTarget>,
+                method, kMethodCallerName, GenMethodInvocation<TTarget>,
                 typeof(TReturn), typeof(TTarget), typeof(object[]));
         }
 
@@ -214,84 +179,8 @@ namespace BinaryConverter.Serializers
             return default(TReturn);
         }
 
-        ///// <summary>
-        ///// Generates a assembly called 'name' that's useful for debugging purposes and inspecting the resulting C# code in ILSpy
-        ///// If 'field' is not null, it generates a setter and getter for that field
-        ///// If 'property' is not null, it generates a setter and getter for that property
-        ///// If 'method' is not null, it generates a call for that method
-        ///// if 'targetType' and 'ctorParamTypes' are not null, it generates a constructor for the target type that takes the specified arguments
-        ///// </summary>
-        //public static void GenDebugAssembly(string name, FieldInfo field, PropertyInfo property, MethodInfo method, Type targetType, Type[] ctorParamTypes)
-        //{
-        //    GenDebugAssembly<object>(name, field, property, method, targetType, ctorParamTypes);
-        //}
 
-        ///// <summary>
-        ///// Generates a assembly called 'name' that's useful for debugging purposes and inspecting the resulting C# code in ILSpy
-        ///// If 'field' is not null, it generates a setter and getter for that field
-        ///// If 'property' is not null, it generates a setter and getter for that property
-        ///// If 'method' is not null, it generates a call for that method
-        ///// if 'targetType' and 'ctorParamTypes' are not null, it generates a constructor for the target type that takes the specified arguments
-        ///// </summary>
-        //public static void GenDebugAssembly<TTarget>(string name, FieldInfo field, PropertyInfo property, MethodInfo method, Type targetType, Type[] ctorParamTypes)
-        //{
-        //    var asmName = new AssemblyName("Asm");
-        //    var asmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(asmName, AssemblyBuilderAccess.RunAndSave);
-        //    var modBuilder = asmBuilder.DefineDynamicModule("Mod", name);
-        //    var typeBuilder = modBuilder.DefineType("Test", TypeAttributes.Public);
-
-        //    var weakTyping = typeof(TTarget) == typeof(object);
-
-        //    Func<string, Type, Type[], ILGenerator> buildMethod = (methodName, returnType, parameterTypes) =>
-        //    {
-        //        var methodBuilder = typeBuilder.DefineMethod(methodName,
-        //            MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Static,
-        //            CallingConventions.Standard,
-        //            returnType, parameterTypes);
-        //        return methodBuilder.GetILGenerator();
-        //    };
-
-        //    if (field != null)
-        //    {
-        //        var fieldType = weakTyping ? typeof(object) : field.FieldType;
-        //        emit.il = buildMethod("FieldSetter", typeof(void), new Type[] { typeof(TTarget).MakeByRefType(), fieldType });
-        //        GenFieldSetter<TTarget>(field);
-        //        emit.il = buildMethod("FieldGetter", fieldType, new Type[] { typeof(TTarget) });
-        //        GenFieldGetter<TTarget>(field);
-        //    }
-
-        //    if (property != null)
-        //    {
-        //        var propType = weakTyping ? typeof(object) : property.PropertyType;
-        //        emit.il = buildMethod("PropertySetter", typeof(void), new Type[] { typeof(TTarget).MakeByRefType(), propType });
-        //        GenPropertySetter<TTarget>(property);
-        //        emit.il = buildMethod("PropertyGetter", propType, new Type[] { typeof(TTarget) });
-        //        GenPropertyGetter<TTarget>(property);
-        //    }
-
-        //    if (method != null)
-        //    {
-        //        var returnType = (weakTyping || method.ReturnType == typeof(void)) ? typeof(object) : method.ReturnType;
-        //        emit.il = buildMethod("MethodCaller", returnType, new Type[] { typeof(TTarget), typeof(object[]) });
-        //        GenMethodInvocation<TTarget>(method);
-        //    }
-
-        //    if (targetType != null)
-        //    {
-        //        emit.il = buildMethod("Ctor", typeof(TTarget), new Type[] { typeof(object[]) });
-        //        GenCtor<TTarget>(targetType, ctorParamTypes);
-        //    }
-
-        //    typeBuilder.CreateType();
-        //    asmBuilder.Save(name);
-        //}
-
-        static string GetKey<T, R>(MemberInfo member, string dynMethodName)
-        {
-            return member.Name + "." + dynMethodName + "." + typeof(T).Name + "." + typeof(R).Name;
-        }
-
-        static TDelegate GenDelegateForMember<TDelegate, TMember>(TMember member, string key, string dynMethodName,
+        static TDelegate GenDelegateForMember<TDelegate, TMember>(TMember member, string dynMethodName,
             Action<TMember> generator, Type returnType, params Type[] paramTypes)
             where TMember : MemberInfo
             where TDelegate : class
@@ -302,7 +191,6 @@ namespace BinaryConverter.Serializers
             generator(member);
 
             var result = dynMethod.CreateDelegate(typeof(TDelegate));
-            _cache[key] = result;
             return (TDelegate)(object)result;
         }
 
