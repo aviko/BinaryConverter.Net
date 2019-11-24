@@ -15,7 +15,8 @@ namespace BinaryConverter.Tests.Models
     {
         public int Id { get; set; }
         public DateTime Time1 { get; set; }
-        public DateTime Time2 { get; set; }
+        public DateTime? Time2 { get; set; }
+        public DateTime? Time3 { get; set; }
         public string Comment { get; set; }
         public PocoWithAllPrimitives SubRecord { get; set; }
         public decimal Dec1 { get; set; }

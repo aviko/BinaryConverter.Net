@@ -44,6 +44,25 @@ namespace BinaryConverter.Tests.TestSystemTypes
             var cloned = BinaryConvert.DeserializeObject<int>(buf);
             Assert.AreEqual(val, cloned);
         }
+
+        [TestMethod]
+        public void Test_Int32NullableWithValue()
+        {
+            int? val = Int32.MinValue;
+            var buf = BinaryConvert.SerializeObject(val);
+            var cloned = BinaryConvert.DeserializeObject<int?>(buf);
+            Assert.AreEqual(val, cloned);
+        }
+
+        [TestMethod]
+        public void Test_Int32NullableWithNull()
+        {
+            int? val = null;
+            var buf = BinaryConvert.SerializeObject(val);
+            var cloned = BinaryConvert.DeserializeObject<int?>(buf);
+            Assert.AreEqual(val, cloned);
+        }
+
         //----------------------------------------------------------------
 
         [TestMethod]

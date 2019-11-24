@@ -24,6 +24,34 @@ namespace BinaryConverter.Tests.TestSystemTypes
         }
 
         [TestMethod]
+        public void Test_DateTimeNullableWithValue()
+        {
+            var settings = new SerializerSettings();
+            settings.SerializerArgMap[typeof(DateTime)] = new DateTimeSerializerArg() { TickResolution = 1 };
+
+            DateTime? val = DateTime.Now;
+            var buf = BinaryConvert.SerializeObject(val, settings);
+            var cloned = BinaryConvert.DeserializeObject<DateTime?>(buf, settings);
+
+            Assert.AreEqual(val, cloned);
+            Assert.AreEqual(buf.Length, 10); //better not to use 7-bit
+        }
+
+        [TestMethod]
+        public void Test_DateTimeNullableWithNull()
+        {
+            var settings = new SerializerSettings();
+            settings.SerializerArgMap[typeof(DateTime)] = new DateTimeSerializerArg() { TickResolution = 1 };
+
+            DateTime? val = null;
+            var buf = BinaryConvert.SerializeObject(val, settings);
+            var cloned = BinaryConvert.DeserializeObject<DateTime?>(buf, settings);
+
+            Assert.AreEqual(val, cloned);
+            Assert.AreEqual(buf.Length, 1); //better not to use 7-bit
+        }
+
+        [TestMethod]
         public void Test_DateTimeSecondResolution()
         {
             var settings = new SerializerSettings();

@@ -118,6 +118,11 @@ namespace BinaryConverter
                 return serializer;
             }
 
+            var nullableUnderlyingType = Nullable.GetUnderlyingType(type);
+            if (nullableUnderlyingType != null)
+            {
+                return new NullableSerializer();// todo?
+            }
 
             if (type.IsGenericType)
             {

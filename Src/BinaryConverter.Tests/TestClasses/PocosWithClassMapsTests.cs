@@ -125,9 +125,11 @@ namespace BinaryConverter.Tests.TestClasses
             Assert.AreEqual(cloned.Time1.Minute, 0);
             Assert.AreEqual(cloned.Time1.Hour, 0);
 
-            Assert.AreEqual(cloned.Time2.Second, 0);
-            Assert.AreEqual(cloned.Time2.Minute, 10);
-            Assert.AreEqual(cloned.Time2.Hour, 10);
+            Assert.AreEqual(cloned.Time2.Value.Second, 0);
+            Assert.AreEqual(cloned.Time2.Value.Minute, 10);
+            Assert.AreEqual(cloned.Time2.Value.Hour, 10);
+
+            Assert.AreEqual(cloned.Time3, null);
 
 
         }
