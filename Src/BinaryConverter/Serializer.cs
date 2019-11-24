@@ -121,7 +121,7 @@ namespace BinaryConverter
             var nullableUnderlyingType = Nullable.GetUnderlyingType(type);
             if (nullableUnderlyingType != null)
             {
-                return new NullableSerializer();// todo?
+                return SerializerRegistry.GetNullableSerializer();
             }
 
             if (type.IsGenericType)

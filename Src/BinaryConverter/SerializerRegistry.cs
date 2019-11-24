@@ -12,6 +12,7 @@ namespace BinaryConverter
         private static ConcurrentDictionary<Type, ISerializer> _serializerMap { get; set; } = new ConcurrentDictionary<Type, ISerializer>();
         private static ConcurrentDictionary<Type, ISerializerArg> _serializerArgMap { get; set; } = new ConcurrentDictionary<Type, ISerializerArg>();
         private static ConcurrentDictionary<Type, IClassMap> _classMapMap { get; set; } = new ConcurrentDictionary<Type, IClassMap>();
+        private static ISerializer _nullableSerializer;
 
         public static void RegisterSerializer(Type type, ISerializer serializer)
         {
@@ -91,6 +92,13 @@ namespace BinaryConverter
 
             //register For Class
             RegisterSerializer(typeof(object), new ClassSerializer());
+
+            _nullableSerializer = new NullableSerializer();
+        }
+
+        internal static ISerializer GetNullableSerializer()
+        {
+            return _nullableSerializer;
         }
     }
 }
