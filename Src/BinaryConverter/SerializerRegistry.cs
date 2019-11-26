@@ -69,7 +69,7 @@ namespace BinaryConverter
 
             //register DateTime
             RegisterSerializer(typeof(DateTime), new DateTimeSerializer());
-            RegisterSerializerArg(typeof(DateTime), new DateTimeSerializerArg() { TickResolution = TimeSpan.TicksPerSecond});
+            RegisterSerializerArg(typeof(DateTime), new DateTimeSerializerArg() { TickResolution = TimeSpan.TicksPerSecond });
 
             //register Decimal
             RegisterSerializer(typeof(decimal), new DecimalSerializer());
@@ -86,6 +86,16 @@ namespace BinaryConverter
             //register Collections
             RegisterSerializer(typeof(List<>), new ListSerializer());
             RegisterSerializer(typeof(Dictionary<,>), new DictionarySerializer());
+
+            //register Tuples
+            RegisterSerializer(typeof(Tuple<>), new TupleSerializer());
+            RegisterSerializer(typeof(Tuple<,>), new TupleSerializer());
+            RegisterSerializer(typeof(Tuple<,,>), new TupleSerializer());
+            RegisterSerializer(typeof(Tuple<,,,>), new TupleSerializer());
+            RegisterSerializer(typeof(Tuple<,,,,>), new TupleSerializer());
+            RegisterSerializer(typeof(Tuple<,,,,,>), new TupleSerializer());
+            RegisterSerializer(typeof(Tuple<,,,,,,>), new TupleSerializer());
+            RegisterSerializer(typeof(Tuple<,,,,,,,>), new TupleSerializer());
 
             //register For String
             RegisterSerializer(typeof(string), new StringSerializer());

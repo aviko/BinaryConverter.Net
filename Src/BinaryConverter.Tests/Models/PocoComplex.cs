@@ -23,7 +23,7 @@ namespace BinaryConverter.Tests.Models
         public float Real32 { get; set; }
         public double Real64 { get; set; }
         public TestEnum TestEnum { get; set; }
-
+        public Tuple<int, string> TupleN2 { get; set; }
         public List<int> IntList { get; set; }
         public List<PocoWithAllPrimitives> SubRecordList { get; set; }
         public Dictionary<int, int> IntDict { get; set; }

@@ -114,6 +114,7 @@ namespace BinaryConverter.Tests.TestClasses
                 Real32 = 17890.9f,
                 Real64 = 167890.1,
                 TestEnum = TestEnum.Val1,
+                TupleN2 = new Tuple<int, string>(1, "1"),
                 IntList = new List<int> { 1, 4, 9, 16 },
                 SubRecordList = new List<PocoWithAllPrimitives>
                 {
