@@ -23,7 +23,7 @@ namespace BinaryConverter.Serializers
 
         public override void Serialize(BinaryTypesWriter bw, Type type, SerializerSettings settings, ISerializerArg serializerArg, object value)
         {
-            var props = value.GetType().GetProperties();//.Select().ToList();
+            var props = type.GetProperties();//.Select().ToList();
             foreach (var prop in props)
             {
                 Serializer.SerializeObject(prop.PropertyType, prop.GetValue(value), bw, settings, null, null);

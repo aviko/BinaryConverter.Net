@@ -151,6 +151,7 @@ namespace BinaryConverter.Tests.TestClasses
                 var buf = BinaryConvert.SerializeObject(val);
                 var cloned = BinaryConvert.DeserializeObject<PocoComplex>(buf);
                 Assert.AreEqual(val, cloned);
+                Assert.AreEqual(val.TupleN2, cloned.TupleN2);
             }
         }
 
