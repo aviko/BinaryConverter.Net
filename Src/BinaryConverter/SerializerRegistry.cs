@@ -97,6 +97,9 @@ namespace BinaryConverter
             RegisterSerializer(typeof(Tuple<,,,,,,>), new TupleSerializer());
             RegisterSerializer(typeof(Tuple<,,,,,,,>), new TupleSerializer());
 
+            //register For Array
+            RegisterSerializer(typeof(Array), new ArraySerializer());
+
             //register For String
             RegisterSerializer(typeof(string), new StringSerializer());
 

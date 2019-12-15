@@ -133,6 +133,15 @@ namespace BinaryConverter
                 }
             }
 
+            if (type.IsArray)
+            {
+                serializer = SerializerRegistry.GetSerializer(typeof(Array));
+                if (serializer != null)
+                {
+                    return serializer;
+                }
+            }
+
             if (type.IsEnum)
             {
                 return SerializerRegistry.GetSerializer(typeof(Enum));

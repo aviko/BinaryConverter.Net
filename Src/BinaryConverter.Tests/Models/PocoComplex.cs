@@ -28,6 +28,11 @@ namespace BinaryConverter.Tests.Models
         public List<PocoWithAllPrimitives> SubRecordList { get; set; }
         public Dictionary<int, int> IntDict { get; set; }
         public Dictionary<string, PocoSimple> SubRecordDict { get; set; }
+        public byte[] ByteArray1 { get; set; } //null
+        public byte[] ByteArray2 { get; set; } //empty
+        public byte[] ByteArray3 { get; set; }
+        public string[] StringArray { get; set; }
+
 
         public override bool Equals(object other)
         {

@@ -1,5 +1,6 @@
 ﻿using BinaryConverter.Tests.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -52,7 +53,7 @@ namespace BinaryConverter.Tests.TestClasses
             };
 
             var buf = BinaryConvert.SerializeObject(typeof(PocoSimple), val);
-            var cloned = BinaryConvert.DeserializeObject(typeof(PocoSimple),buf);
+            var cloned = BinaryConvert.DeserializeObject(typeof(PocoSimple), buf);
 
             Assert.AreEqual(val, cloned);
         }
@@ -99,7 +100,7 @@ namespace BinaryConverter.Tests.TestClasses
                 Time1 = new DateTime((DateTime.UtcNow.Ticks / TimeSpan.TicksPerSecond) * TimeSpan.TicksPerSecond),
                 Comment = null,//"Bla!",
                 SubRecord = new PocoWithAllPrimitives()
-                {                   
+                {
                     Byte = 1,
                     SByte = -2,
                     Int16 = -3,
@@ -107,7 +108,7 @@ namespace BinaryConverter.Tests.TestClasses
                     Int32 = 5,
                     UInt32 = 6,
                     Int64 = 7,
-                    UInt64 = 8,                    
+                    UInt64 = 8,
                     Char = 'a',
                 },
                 Dec1 = 1234567890.954m,
@@ -143,13 +144,21 @@ namespace BinaryConverter.Tests.TestClasses
                 {
                     { "key1" , new PocoSimple{Int = 1 , Str = null}},
                     { "key2" , new PocoSimple{Int = -1 , Str = "str"} },
-                }
+                },
+                ByteArray2 = new byte[0],
+                ByteArray3 = new byte[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+                StringArray = new string[3] { "1", null, "3" }
+
             };
 
             //for (int i = 0; i < 100_000; i++)
             {
+
+                var jsonLen = JsonConvert.SerializeObject(val).Length;
+
                 var buf = BinaryConvert.SerializeObject(val);
                 var cloned = BinaryConvert.DeserializeObject<PocoComplex>(buf);
+
                 Assert.AreEqual(val, cloned);
                 Assert.AreEqual(val.TupleN2, cloned.TupleN2);
             }
