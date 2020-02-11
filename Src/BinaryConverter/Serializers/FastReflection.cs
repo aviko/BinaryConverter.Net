@@ -35,16 +35,19 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static CtorInvoker<T> DelegateForCtor<T>(this Type type, params Type[] paramTypes)
         {
-            Delegate result;
+            lock (_emit)
+            {
+                Delegate result;
 
-            var dynMethod = new DynamicMethod(kCtorInvokerName,
-                typeof(T), new Type[] { typeof(object[]) });
+                var dynMethod = new DynamicMethod(kCtorInvokerName,
+                    typeof(T), new Type[] { typeof(object[]) });
 
-            _emit.il = dynMethod.GetILGenerator();
-            GenCtor<T>(type, paramTypes);
+                _emit.il = dynMethod.GetILGenerator();
+                GenCtor<T>(type, paramTypes);
 
-            result = dynMethod.CreateDelegate(typeof(CtorInvoker<T>));
-            return (CtorInvoker<T>)result;
+                result = dynMethod.CreateDelegate(typeof(CtorInvoker<T>));
+                return (CtorInvoker<T>)result;
+            }
         }
 
         /// <summary>
@@ -52,7 +55,10 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static CtorInvoker<object> DelegateForCtor(this Type type, params Type[] ctorParamTypes)
         {
-            return DelegateForCtor<object>(type, ctorParamTypes);
+            lock (_emit)
+            {
+                return DelegateForCtor<object>(type, ctorParamTypes);
+            }
         }
 
         /// <summary>
@@ -60,12 +66,15 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static MemberGetter<TTarget, TReturn> DelegateForGet<TTarget, TReturn>(this PropertyInfo property)
         {
-            if (!property.CanRead)
-                throw new InvalidOperationException("Property is not readable " + property.Name);
+            lock (_emit)
+            {
+                if (!property.CanRead)
+                    throw new InvalidOperationException("Property is not readable " + property.Name);
 
-            return GenDelegateForMember<MemberGetter<TTarget, TReturn>, PropertyInfo>(
-                 property, kPropertyGetterName, GenPropertyGetter<TTarget>,
-                 typeof(TReturn), typeof(TTarget));
+                return GenDelegateForMember<MemberGetter<TTarget, TReturn>, PropertyInfo>(
+                     property, kPropertyGetterName, GenPropertyGetter<TTarget>,
+                     typeof(TReturn), typeof(TTarget));
+            }
         }
 
         /// <summary>
@@ -73,7 +82,10 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static MemberGetter<object, object> DelegateForGet(this PropertyInfo property)
         {
-            return DelegateForGet<object, object>(property);
+            lock (_emit)
+            {
+                return DelegateForGet<object, object>(property);
+            }
         }
 
         /// <summary>
@@ -81,12 +93,15 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static MemberSetter<TTarget, TValue> DelegateForSet<TTarget, TValue>(this PropertyInfo property)
         {
-            if (!property.CanWrite)
-                throw new InvalidOperationException("Property is not writable " + property.Name);
+            lock (_emit)
+            {
+                if (!property.CanWrite)
+                    throw new InvalidOperationException("Property is not writable " + property.Name);
 
-            return GenDelegateForMember<MemberSetter<TTarget, TValue>, PropertyInfo>(
-                property, kPropertySetterName, GenPropertySetter<TTarget>,
-                typeof(void), typeof(TTarget).MakeByRefType(), typeof(TValue));
+                return GenDelegateForMember<MemberSetter<TTarget, TValue>, PropertyInfo>(
+                    property, kPropertySetterName, GenPropertySetter<TTarget>,
+                    typeof(void), typeof(TTarget).MakeByRefType(), typeof(TValue));
+            }
         }
 
         /// <summary>
@@ -94,89 +109,10 @@ namespace BinaryConverter.Serializers
         /// </summary>
         public static MemberSetter<object, object> DelegateForSet(this PropertyInfo property)
         {
-            return DelegateForSet<object, object>(property);
-        }
-
-        /// <summary>
-        /// Generates an open-instance delegate to get the value of the property from a given target
-        /// </summary>
-        public static MemberGetter<TTarget, TReturn> DelegateForGet<TTarget, TReturn>(this FieldInfo field)
-        {
-            return GenDelegateForMember<MemberGetter<TTarget, TReturn>, FieldInfo>(
-                field, kFieldGetterName, GenFieldGetter<TTarget>,
-                typeof(TReturn), typeof(TTarget));
-        }
-
-        /// <summary>
-        /// Generates a weakly-typed open-instance delegate to set the value of the field in a given target
-        /// </summary>
-        public static MemberGetter<object, object> DelegateForGet(this FieldInfo field)
-        {
-            return DelegateForGet<object, object>(field);
-        }
-
-        /// <summary>
-        /// Generates a strongly-typed open-instance delegate to set the value of the field in a given target
-        /// </summary>
-        public static MemberSetter<TTarget, TValue> DelegateForSet<TTarget, TValue>(this FieldInfo field)
-        {
-            return GenDelegateForMember<MemberSetter<TTarget, TValue>, FieldInfo>(
-                field, kFieldSetterName, GenFieldSetter<TTarget>,
-                typeof(void), typeof(TTarget).MakeByRefType(), typeof(TValue));
-        }
-
-        /// <summary>
-        /// Generates a weakly-typed open-instance delegate to set the value of the field in a given target
-        /// </summary>
-        public static MemberSetter<object, object> DelegateForSet(this FieldInfo field)
-        {
-            return DelegateForSet<object, object>(field);
-        }
-
-        /// <summary>
-        /// Generates a strongly-typed open-instance delegate to invoke the specified method
-        /// </summary>
-        public static MethodCaller<TTarget, TReturn> DelegateForCall<TTarget, TReturn>(this MethodInfo method)
-        {
-            return GenDelegateForMember<MethodCaller<TTarget, TReturn>, MethodInfo>(
-                method, kMethodCallerName, GenMethodInvocation<TTarget>,
-                typeof(TReturn), typeof(TTarget), typeof(object[]));
-        }
-
-        /// <summary>
-        /// Generates a weakly-typed open-instance delegate to invoke the specified method
-        /// </summary>
-        public static MethodCaller<object, object> DelegateForCall(this MethodInfo method)
-        {
-            return DelegateForCall<object, object>(method);
-        }
-
-        /// <summary>
-        /// Executes the delegate on the specified target and arguments but only if it's not null
-        /// </summary>
-        public static void SafeInvoke<TTarget, TValue>(this MethodCaller<TTarget, TValue> caller, TTarget target, params object[] args)
-        {
-            if (caller != null)
-                caller(target, args);
-        }
-
-        /// <summary>
-        /// Executes the delegate on the specified target and value but only if it's not null
-        /// </summary>
-        public static void SafeInvoke<TTarget, TValue>(this MemberSetter<TTarget, TValue> setter, ref TTarget target, TValue value)
-        {
-            if (setter != null)
-                setter(ref target, value);
-        }
-
-        /// <summary>
-        /// Executes the delegate on the specified target only if it's not null, returns default(TReturn) otherwise
-        /// </summary>
-        public static TReturn SafeInvoke<TTarget, TReturn>(this MemberGetter<TTarget, TReturn> getter, TTarget target)
-        {
-            if (getter != null)
-                return getter(target);
-            return default(TReturn);
+            lock (_emit)
+            {
+                return DelegateForSet<object, object>(property);
+            }
         }
 
 
