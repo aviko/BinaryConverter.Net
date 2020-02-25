@@ -86,6 +86,7 @@ namespace BinaryConverter
             //register Collections
             RegisterSerializer(typeof(List<>), new ListSerializer());
             RegisterSerializer(typeof(Dictionary<,>), new DictionarySerializer());
+            RegisterSerializer(typeof(HashSet<>), new HashSetSerializer());
 
             //register Tuples
             RegisterSerializer(typeof(Tuple<>), new TupleSerializer());
