@@ -10,6 +10,16 @@ namespace BinaryConverter.Tests.TestSystemTypes
     public class DateTimeTests
     {
         [TestMethod]
+        public void Test_Default()
+        {
+            var val = default(DateTime);
+            var buf = BinaryConvert.SerializeObject(val);
+            var cloned = BinaryConvert.DeserializeObject<DateTime>(buf);
+
+            Assert.AreEqual(val, cloned);
+        }
+
+        [TestMethod]
         public void Test_DateTimeTickResolution()
         {
             var settings = new SerializerSettings();

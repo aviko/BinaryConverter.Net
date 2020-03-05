@@ -71,6 +71,9 @@ namespace BinaryConverter
             RegisterSerializer(typeof(DateTime), new DateTimeSerializer());
             RegisterSerializerArg(typeof(DateTime), new DateTimeSerializerArg() { TickResolution = TimeSpan.TicksPerSecond });
 
+            //register DateTime
+            RegisterSerializer(typeof(Guid), new GuidSerializer());
+
             //register Decimal
             RegisterSerializer(typeof(decimal), new DecimalSerializer());
 

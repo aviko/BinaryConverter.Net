@@ -147,7 +147,8 @@ namespace BinaryConverter.Tests.TestClasses
                 },
                 ByteArray2 = new byte[0],
                 ByteArray3 = new byte[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
-                StringArray = new string[3] { "1", null, "3" }
+                StringArray = new string[3] { "1", null, "3" },
+                Guid = new Guid("F9168C5E-CEB2-4faa-B6BF-329BF39FA1E4"),
 
             };
 

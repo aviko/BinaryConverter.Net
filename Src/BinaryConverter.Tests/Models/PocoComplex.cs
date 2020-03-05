@@ -33,6 +33,7 @@ namespace BinaryConverter.Tests.Models
         public byte[] ByteArray3 { get; set; }
         public string[] StringArray { get; set; }
 
+        public Guid Guid { get; set; }
 
         public override bool Equals(object other)
         {
