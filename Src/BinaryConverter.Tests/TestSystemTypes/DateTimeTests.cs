@@ -88,5 +88,33 @@ namespace BinaryConverter.Tests.TestSystemTypes
             Assert.AreEqual(val, cloned);
             Assert.AreEqual(buf.Length, 3);
         }
+
+
+        [TestMethod]
+        public void Test_TimeSpanSecondResolution()
+        {
+            var settings = new SerializerSettings();
+            settings.SerializerArgMap[typeof(TimeSpan)] = new DateTimeSerializerArg() { TickResolution = TimeSpan.TicksPerSecond };
+            var val = new TimeSpan(7, 10, 10, 10);
+
+            var buf = BinaryConvert.SerializeObject(val, settings);
+            var cloned = BinaryConvert.DeserializeObject<TimeSpan>(buf, settings);
+
+            Assert.AreEqual(val, cloned);
+            Assert.AreEqual(buf.Length, 3);
+        }
+
+
+        [TestMethod]
+        public void Test_TimeSpanAccurately()
+        {
+            var val = new TimeSpan(7, 10, 10, 10, 6);
+
+            var buf = BinaryConvert.SerializeObject(val);
+            var cloned = BinaryConvert.DeserializeObject<TimeSpan>(buf);
+
+            Assert.AreEqual(val, cloned);
+            Assert.AreEqual(buf.Length, 7);
+        }
     }
 }
